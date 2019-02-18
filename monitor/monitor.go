@@ -32,11 +32,11 @@ func main() {
 
 	// read config file
 	value := Config{}
-	fileBytes, err := ioutil.ReadFile(fileLocation)
+	fileBytes, err := ioutil.ReadFile("./config.json")
 	if err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(fileBytes, value); err != nil {
+	if err := json.Unmarshal(fileBytes, &value); err != nil {
 		panic(err)
 	}
 	fmt.Printf("ZMQ addr: %s\n", value.Addr)
