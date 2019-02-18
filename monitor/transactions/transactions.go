@@ -13,16 +13,9 @@ func must(err error) {
 	}
 }
 
-type MsgType byte
-
 var msMsgReceived = 0
 var txMsgReceived = 0
 var confirmedMsgReceived = 0
-
-type Msg struct {
-	Type MsgType     `json:"type"`
-	Obj  interface{} `json:"obj"`
-}
 
 type Transaction struct {
 	Hash         string `json:"hash"`
@@ -45,12 +38,12 @@ type Bucket struct {
 	TXs []*Transaction
 }
 
-func (b *Bucket) Full() bool {
+func (b *Bucket) full() bool {
 	size := len(b.TXs)
 	return size != 0 && size == b.TXs[0].LastIndex+1
 }
 
-func startTxFeed(address string) {
+func StartTxFeed(address string) {
 	socket, err := zmq4.NewSocket(zmq4.SUB)
 	must(err)
 	socket.SetSubscribe("tx")
@@ -79,7 +72,7 @@ func startTxFeed(address string) {
 			b.TXs = append(b.TXs, tx)
 		}
 		fmt.Printf("new transaction attached: %+v\n",b)
-		if b.Full() {
+		if b.full() {
 			fmt.Printf("new bundle bucket complete: %s\n", b.TXs[0].BundleHash)
 		}
 
@@ -91,7 +84,7 @@ type Milestone struct {
 	Hash string `json:"hash"`
 }
 
-func startMilestoneFeed(address string) {
+func StartMilestoneFeed(address string) {
 	socket, err := zmq4.NewSocket(zmq4.SUB)
 	must(err)
 	socket.SetSubscribe("lmhs")
@@ -118,7 +111,7 @@ type ConfTx struct {
 	Hash string `json:"hash"`
 }
 
-func startConfirmationFeed(address string) {
+func StartConfirmationFeed(address string) {
 	socket, err := zmq4.NewSocket(zmq4.SUB)
 	must(err)
 	socket.SetSubscribe("sn")

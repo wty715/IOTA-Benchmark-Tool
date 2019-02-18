@@ -42,9 +42,9 @@ func main() {
 	fmt.Printf("ZMQ addr: %s\n", value.Addr)
 
 	// start feeds
-	go transactions.startTxFeed(value.Addr)
-	go transactions.startMilestoneFeed(value.Addr)
-	go transactions.startConfirmationFeed(value.Addr)
+	go transactions.StartTxFeed(value.Addr)
+	go transactions.StartMilestoneFeed(value.Addr)
+	go transactions.StartConfirmationFeed(value.Addr)
 
 	select {
 	case <-sigs:
