@@ -50,13 +50,13 @@ func StartTxFeed(address string) {
 	err = socket.Connect(address)
 	must(err)
 
-	fmt.Printf("started tx feed")
+	fmt.Printf("started tx feed\n")
 	for {
 		msg, err := socket.Recv(0)
 		must(err)
 		tx := buildTxFromZMQData(msg)
 		if tx == nil {
-			fmt.Printf("receive error! no transaction message")
+			fmt.Printf("receive error! no transaction message\n")
 			continue
 		}
 
@@ -91,13 +91,13 @@ func StartMilestoneFeed(address string) {
 	err = socket.Connect(address)
 	must(err)
 
-	fmt.Printf("started milestone feed")
+	fmt.Printf("started milestone feed\n")
 	for {
 		msg, err := socket.Recv(0)
 		must(err)
 		msgSplit := strings.Split(msg, " ")
 		if len(msgSplit) != 2 {
-			fmt.Printf("receive error! milestone message format error")
+			fmt.Printf("receive error! milestone message format error\n")
 			continue
 		}
 		msMsgReceived++
@@ -118,13 +118,13 @@ func StartConfirmationFeed(address string) {
 	err = socket.Connect(address)
 	must(err)
 
-	fmt.Printf("started confirmation feed")
+	fmt.Printf("started confirmation feed\n")
 	for {
 		msg, err := socket.Recv(0)
 		must(err)
 		msgSplit := strings.Split(msg, " ")
 		if len(msgSplit) != 7 {
-			fmt.Printf("receive error! confirm message format error")
+			fmt.Printf("receive error! confirm message format error\n")
 			continue
 		}
 		confirmedMsgReceived++
