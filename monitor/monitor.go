@@ -24,9 +24,9 @@ func main() {
 	fmt.Printf("running ZMQ %d.%d.%d\n", major, minor, patch)
 
 	// start feeds
-	go startTxFeed()
-	go startMilestoneFeed()
-	go startConfirmationFeed()
+	go transactions.startTxFeed()
+	go transactions.startMilestoneFeed()
+	go transactions.startConfirmationFeed()
 
 	select {
 	case <-sigs:
