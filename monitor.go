@@ -6,7 +6,7 @@ import (
 	"syscall"
 	"time"
 	"fmt"
-	"transactions"
+	"./transactions"
 )
 
 func Shutdown(timeout time.Duration) {
