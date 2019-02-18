@@ -110,6 +110,7 @@ func startMilestoneFeed(address string) {
 		msMsgReceived++
 		milestone := Milestone{msgSplit[1]}
 		fmt.Printf("new milestone attached: %+v\n",msg)
+		fmt.Printf("new milestone attached hash: %+v\n",milestone)
 	}
 }
 
@@ -136,6 +137,7 @@ func startConfirmationFeed(address string) {
 		confirmedMsgReceived++
 		confTx := ConfTx{msgSplit[2]}
 		fmt.Printf("confirm transaction: %+v\n",msg)
+		fmt.Printf("confirm transaction hash: %+v\n",confTx)
 	}
 }
 
