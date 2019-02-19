@@ -19,7 +19,7 @@ func Shutdown(timeout time.Duration) {
 }
 
 type Config struct {
-    zmqAddr string `json:"ZMQ_Address"`
+    Zmq_Address string
 }
 
 var totalTime int64 = 0
@@ -41,12 +41,12 @@ func main() {
     if err := json.Unmarshal(fileBytes, &value); err != nil {
         panic(err)
     }
-    fmt.Printf("ZMQ addr: %s\n", value.zmqAddr)
+    fmt.Printf("ZMQ addr: %s\n", value.Zmq_Address)
 
     // start feeds
-    go transactions.StartTxFeed(value.zmqAddr)
-    go transactions.StartMilestoneFeed(value.zmqAddr)
-    go transactions.StartConfirmationFeed(value.zmqAddr)
+    go transactions.StartTxFeed(value.Zmq_Address)
+    go transactions.StartMilestoneFeed(value.Zmq_Address)
+    go transactions.StartConfirmationFeed(value.Zmq_Address)
     go transactions.StartLog()
 
     select {
