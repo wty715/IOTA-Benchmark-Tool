@@ -38,10 +38,8 @@ type Bucket struct {
 	TXs []*Transaction
 }
 
-type latency struct {
-	inherent_lat	map[string]double{}
-	confirming_lat	map[string]double{}
-}
+var	inherent_lat	= map[string]double{}
+var confirming_lat	= map[string]double{}
 
 func (b *Bucket) full() bool {
 	size := len(b.TXs)
