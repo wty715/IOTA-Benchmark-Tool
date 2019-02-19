@@ -39,9 +39,9 @@ type Bucket struct {
 	TXs []*Transaction
 }
 
-var	Inherent_lat	= map[string]int64
-var Confirming_lat	= map[string]int64
-var Latency			= map[string]int64
+var	Inherent_lat	= map[string]int64{}
+var Confirming_lat	= map[string]int64{}
+var Latency			= map[string]int64{}
 
 func (b *Bucket) full() bool {
 	size := len(b.TXs)
@@ -72,9 +72,9 @@ func StartLog() {
 
 		a := time.Now().Unix() - lastTime
 		b := time.Now().Unix() - Start_time
-		
-		fmt.Printf("[%d s - %d s]: Average Latency %f,\n", a, b, totalLatency/total)
-		fmt.Printf("[%d s - %d s]: Including inherent latency %f and confirming latency %f.\n", a, b, totalInherent_lat/total, totalConforming_lat/total)
+
+		fmt.Printf("[%d s - %d s]: Average Latency %f,\n", a, b, totalLatency/(int64)total)
+		fmt.Printf("[%d s - %d s]: Including inherent latency %f and confirming latency %f.\n", a, b, totalInherent_lat/(int64)total, totalConforming_lat/(int64)total)
 		fmt.Printf("[%d s - %d s]: Average Throughput %d TPS.\n", a, b, (TxMsgReceived-lastTotalTxs)/120)
 	}
 }
