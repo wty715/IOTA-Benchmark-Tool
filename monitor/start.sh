@@ -1,0 +1,1 @@
+nohup ./monitor >> monitor_output.log 2>&1 &

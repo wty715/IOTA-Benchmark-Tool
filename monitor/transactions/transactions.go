@@ -82,8 +82,8 @@ func StartTxFeed(address string) {
             //fmt.Printf("new bundle bucket complete: %+v\n", b)
         }
         TxMsgReceived++
-        fmt.Printf("new transaction attached: %+v\n", tx)
-        fmt.Printf("RAW msg: %s\n", msg)
+        //fmt.Printf("new transaction attached: %+v\n", tx)
+        //fmt.Printf("RAW msg: %s\n", msg)
     }
 }
 
@@ -122,8 +122,8 @@ func StartConfirmationFeed(address string) {
             //fmt.Printf("error! transanction repeated\n")
         }
         ConfirmedMsgReceived++
-        fmt.Printf("confirm transaction: %+v\n", tx)
-        fmt.Printf("RAW msg: %s\n", msg)
+        //fmt.Printf("confirm transaction: %+v\n", tx)
+        //fmt.Printf("RAW msg: %s\n", msg)
     }
 }
 
@@ -163,11 +163,10 @@ var Start_time int64 = time.Now().Unix()
 func StartLog(interval int) {
     for {
         lastTotalTxs := TxMsgReceived
-        lastTime := time.Now().Unix()
         Confirming_lat = make(map[string]int64)
         Latency = make(map[string]int64)
 
-        time.After(time.Duration(interval) * time.Second)
+        time.Sleep(time.Duration(interval) * time.Second)
 
         var totalLatency        int64 = 0
         var totalInherent_lat   int64 = 0
@@ -180,12 +179,13 @@ func StartLog(interval int) {
             total++
         }
 
-        a := time.Now().Unix() - lastTime
+        a := time.Now().Unix() - Start_time - interval
         b := time.Now().Unix() - Start_time
 
         fmt.Printf("[%d s - %d s]: Average Latency %f,\n", a, b, float64(totalLatency)/float64(total))
         fmt.Printf("[%d s - %d s]: Including inherent latency %f and confirming latency %f.\n", a, b, float64(totalInherent_lat)/float64(total), float64(totalConforming_lat)/float64(total))
         fmt.Printf("[%d s - %d s]: Average Throughput %d TPS.\n", a, b, (TxMsgReceived-lastTotalTxs)/interval)
+        fmt.Printf("\n")
     }
 }
 
