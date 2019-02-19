@@ -47,12 +47,12 @@ func main() {
     go transactions.StartTxFeed(value.zmqAddr)
     go transactions.StartMilestoneFeed(value.zmqAddr)
     go transactions.StartConfirmationFeed(value.zmqAddr)
-    go transantions.StartLog()
+    go transactions.StartLog()
 
     select {
     case <-sigs:
         fmt.Printf("total Time: %d\n", time.Now().Unix() - transactions.Start_time)
-        fmt.Printf("total Transactions: %d\n", transactions.TxMsgReveiced)
+        fmt.Printf("total Transactions: %d\n", transactions.TxMsgReceived)
         Shutdown(time.Duration(1500) * time.Millisecond)
     }
 }
