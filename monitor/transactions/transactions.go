@@ -95,10 +95,9 @@ func StartTxFeed(address string) {
 			//fmt.Printf("receive error! no transaction message\n")
 			continue
 		}
-		var has bool
 
 		// calculate inherent latency
-		_, has = Inherent_lat[tx.Hash]
+		_, has := Inherent_lat[tx.Hash]
 		if !has {
 			if tx.ArrivalTime - tx.Timestamp > 0 {
 				Inherent_lat[tx.Hash] = tx.ArrivalTime - tx.Timestamp
@@ -175,7 +174,7 @@ func StartConfirmationFeed(address string) {
 		ConfirmedMsgReceived++
 		confTx := ConfTx{msgSplit[2]}
 
-		_, has = Confirming_lat[confTx.Hash]
+		_, has := Confirming_lat[confTx.Hash]
 		if !has {
 			if tx.ArrivalTime - tx.Timestamp > 0 {
 				Confirming_lat[confTx.Hash] = time.Now().Unix() - confTx.ArrivalTime
