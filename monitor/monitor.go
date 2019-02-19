@@ -20,6 +20,7 @@ func Shutdown(timeout time.Duration) {
 
 type Config struct {
     Zmq_Address string
+    Interval    int
 }
 
 var totalTime int64 = 0
@@ -42,12 +43,13 @@ func main() {
         panic(err)
     }
     fmt.Printf("ZMQ addr: %s\n", value.Zmq_Address)
+    fmt.Printf("Interval: %d\n", value.Interval)
 
     // start feeds
     go transactions.StartTxFeed(value.Zmq_Address)
     go transactions.StartMilestoneFeed(value.Zmq_Address)
     go transactions.StartConfirmationFeed(value.Zmq_Address)
-    go transactions.StartLog()
+    go transactions.StartLog(value.Interval)
 
     select {
     case <-sigs:

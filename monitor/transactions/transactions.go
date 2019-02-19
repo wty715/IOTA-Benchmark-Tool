@@ -160,14 +160,14 @@ var Confirming_lat   = map[string]int64{}
 var Latency          = map[string]int64{}
 var Start_time int64 = time.Now().Unix()
 
-func StartLog() {
+func StartLog(interval int) {
     for {
         lastTotalTxs := TxMsgReceived
         lastTime := time.Now().Unix()
         Confirming_lat = make(map[string]int64)
         Latency = make(map[string]int64)
 
-        time.After(time.Duration(120) * time.Second)
+        time.After(time.Duration(interval) * time.Second)
 
         var totalLatency        int64 = 0
         var totalInherent_lat   int64 = 0
@@ -185,7 +185,7 @@ func StartLog() {
 
         fmt.Printf("[%d s - %d s]: Average Latency %f,\n", a, b, float64(totalLatency)/float64(total))
         fmt.Printf("[%d s - %d s]: Including inherent latency %f and confirming latency %f.\n", a, b, float64(totalInherent_lat)/float64(total), float64(totalConforming_lat)/float64(total))
-        fmt.Printf("[%d s - %d s]: Average Throughput %d TPS.\n", a, b, (TxMsgReceived-lastTotalTxs)/120)
+        fmt.Printf("[%d s - %d s]: Average Throughput %d TPS.\n", a, b, (TxMsgReceived-lastTotalTxs)/interval)
     }
 }
 
