@@ -38,8 +38,9 @@ type Bucket struct {
 	TXs []*Transaction
 }
 
-var	inherent_lat	= map[string]double{}
-var confirming_lat	= map[string]double{}
+var	inherent_lat	= map[string]float64{}
+var confirming_lat	= map[string]float64{}
+var latency			= map[string]float64{}
 
 func (b *Bucket) full() bool {
 	size := len(b.TXs)
@@ -62,10 +63,29 @@ func StartTxFeed(address string) {
 			fmt.Printf("receive error! no transaction message\n")
 			continue
 		}
+		var has bool
+		
+		// calculate latency
+		var d_i float64
+		d_i, has = inherent_lat[tx.Hash]
+		if !has {
+			// DO IT
+		}
+		else {
+			fmt.Printf("error! transanction repeated\n")
+		}
+		var d_c float64
+		d_c, has = confirming_lat[tx.Hash]
+		if !has {
+			// DO IT
+		}
+		else {
+			fmt.Printf("error! transanction repeated\n")
+		}
+		latency[tx.Hash] = inherent_lat[tx.Hash] + confirming_lat[tx.Hash]
 
 		// add transaction to bucket
 		var b *Bucket
-		var has bool
 		b, has = buckets[tx.BundleHash]
 		if !has {
 			b = &Bucket{TXs: []*Transaction{}}
