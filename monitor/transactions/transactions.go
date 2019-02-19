@@ -5,6 +5,7 @@ import (
 	"github.com/pebbe/zmq4"
 	"strings"
 	"strconv"
+	"time"
 )
 
 func must(err error) {
@@ -13,9 +14,9 @@ func must(err error) {
 	}
 }
 
-var msMsgReceived = 0
-var txMsgReceived = 0
-var confirmedMsgReceived = 0
+var MsMsgReceived = 0
+var TxMsgReceived = 0
+var ConfirmedMsgReceived = 0
 
 type Transaction struct {
 	Hash         string `json:"hash"`
@@ -28,7 +29,7 @@ type Transaction struct {
 	BundleHash   string `json:"bundle_hash"`
 	TrunkTxHash  string `json:"trunk_tx_hash"`
 	BranchTxHash string `json:"branch_tx_hash"`
-	ArrivalTime  string `json:"arrival_time"`
+	ArrivalTime  int64  `json:"arrival_time"`
 	Tag          string `json:"tag"`
 }
 
@@ -38,13 +39,44 @@ type Bucket struct {
 	TXs []*Transaction
 }
 
-var	inherent_lat	= map[string]float64{}
-var confirming_lat	= map[string]float64{}
-var latency			= map[string]float64{}
+var	Inherent_lat	= map[string]int64
+var Confirming_lat	= map[string]int64
+var Latency			= map[string]int64
 
 func (b *Bucket) full() bool {
 	size := len(b.TXs)
 	return size != 0 && size == b.TXs[0].LastIndex+1
+}
+
+var Start_time int64 = time.Now().Unix()
+
+func StartLog() {
+	for {
+		lastTotalTxs := TxMsgReceived
+		lastTime := time.Now().Unix()
+		Confirming_lat = make(map[string]int64)
+		Latency = make(map[string]int64)
+
+		time.After(time.Duration(120) * time.Second)
+
+		var totalLatency		int64 = 0
+		var totalInherent_lat	int64 = 0
+		var totalConforming_lat	int64 = 0
+		var total = 0
+		for k, v := range Latency {
+			totalLatency += v
+			totalInherent_lat += Inherent_lat[k]
+			totalConforming_lat += Confirming_lat[k]
+			total++
+		}
+
+		a := time.Now().Unix() - lastTime
+		b := time.Now().Unix() - Start_time
+		
+		fmt.Printf("[%d s - %d s]: Average Latency %f,\n", a, b, totalLatency/total)
+		fmt.Printf("[%d s - %d s]: Including inherent latency %f and confirming latency %f.\n", a, b, totalInherent_lat/total, totalConforming_lat/total)
+		fmt.Printf("[%d s - %d s]: Average Throughput %d TPS.\n", a, b, (TxMsgReceived-lastTotalTxs)/120)
+	}
 }
 
 func StartTxFeed(address string) {
@@ -60,29 +92,20 @@ func StartTxFeed(address string) {
 		must(err)
 		tx := buildTxFromZMQData(msg)
 		if tx == nil {
-			fmt.Printf("receive error! no transaction message\n")
+			//fmt.Printf("receive error! no transaction message\n")
 			continue
 		}
 		var has bool
-		
-		// calculate latency
-		var d_i float64
-		d_i, has = inherent_lat[tx.Hash]
+
+		// calculate inherent latency
+		_, has = Inherent_lat[tx.Hash]
 		if !has {
-			// DO IT
+			if tx.ArrivalTime - tx.Timestamp > 0 {
+				Inherent_lat[tx.Hash] = tx.ArrivalTime - tx.Timestamp
+			}
+		} else {
+			//fmt.Printf("error! transanction repeated\n")
 		}
-		else {
-			fmt.Printf("error! transanction repeated\n")
-		}
-		var d_c float64
-		d_c, has = confirming_lat[tx.Hash]
-		if !has {
-			// DO IT
-		}
-		else {
-			fmt.Printf("error! transanction repeated\n")
-		}
-		latency[tx.Hash] = inherent_lat[tx.Hash] + confirming_lat[tx.Hash]
 
 		// add transaction to bucket
 		var b *Bucket
@@ -94,12 +117,11 @@ func StartTxFeed(address string) {
 		} else {
 			b.TXs = append(b.TXs, tx)
 		}
-		fmt.Printf("new transaction attached: %+v\n", tx)
+		//fmt.Printf("new transaction attached: %+v\n", tx)
 		if b.full() {
-			fmt.Printf("new bundle bucket complete: %+v\n", b)
+			//fmt.Printf("new bundle bucket complete: %+v\n", b)
 		}
-
-		txMsgReceived++
+		TxMsgReceived++
 	}
 }
 
@@ -120,13 +142,13 @@ func StartMilestoneFeed(address string) {
 		must(err)
 		msgSplit := strings.Split(msg, " ")
 		if len(msgSplit) != 2 {
-			fmt.Printf("receive error! milestone message format error\n")
+			//fmt.Printf("receive error! milestone message format error\n")
 			continue
 		}
-		msMsgReceived++
+		MsMsgReceived++
 		milestone := Milestone{msgSplit[1]}
-		fmt.Printf("new milestone attached: %+v\n", msg)
-		fmt.Printf("new milestone attached hash: %+v\n", milestone)
+		//fmt.Printf("new milestone attached: %+v\n", msg)
+		//fmt.Printf("new milestone attached hash: %+v\n", milestone)
 	}
 }
 
@@ -147,13 +169,23 @@ func StartConfirmationFeed(address string) {
 		must(err)
 		msgSplit := strings.Split(msg, " ")
 		if len(msgSplit) != 7 {
-			fmt.Printf("receive error! confirm message format error\n")
+			//fmt.Printf("receive error! confirm message format error\n")
 			continue
 		}
-		confirmedMsgReceived++
+		ConfirmedMsgReceived++
 		confTx := ConfTx{msgSplit[2]}
-		fmt.Printf("confirm transaction: %+v\n", msg)
-		fmt.Printf("confirm transaction hash: %+v\n", confTx)
+
+		_, has = Confirming_lat[confTx.Hash]
+		if !has {
+			if tx.ArrivalTime - tx.Timestamp > 0 {
+				Confirming_lat[confTx.Hash] = time.Now().Unix() - confTx.ArrivalTime
+				Latency[tx.Hash] = Inherent_lat[tx.Hash] + Confirming_lat[tx.Hash]
+			}
+		} else {
+			//fmt.Printf("error! transanction repeated\n")
+		}
+		//fmt.Printf("confirm transaction: %+v\n", msg)
+		//fmt.Printf("confirm transaction hash: %+v\n", confTx)
 	}
 }
 
@@ -187,7 +219,10 @@ func buildTxFromZMQData(msg string) *Transaction {
 	tx.BundleHash = msgSplit[7]
 	tx.TrunkTxHash = msgSplit[8]
 	tx.BranchTxHash = msgSplit[9]
-	tx.ArrivalTime = msgSplit[10]
+	tx.ArrivalTime, err = strconv.ParseInt(msgSplit[10], 10, 64)
+	if err != nil {
+		return nil
+	}
 	tx.Tag = msgSplit[11]
 	return tx
 }
