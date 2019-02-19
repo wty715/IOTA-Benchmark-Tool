@@ -73,8 +73,8 @@ func StartLog() {
 		a := time.Now().Unix() - lastTime
 		b := time.Now().Unix() - Start_time
 
-		fmt.Printf("[%d s - %d s]: Average Latency %f,\n", a, b, totalLatency/(int64)total)
-		fmt.Printf("[%d s - %d s]: Including inherent latency %f and confirming latency %f.\n", a, b, totalInherent_lat/(int64)total, totalConforming_lat/(int64)total)
+		fmt.Printf("[%d s - %d s]: Average Latency %f,\n", a, b, float64(totalLatency)/float64(total))
+		fmt.Printf("[%d s - %d s]: Including inherent latency %f and confirming latency %f.\n", a, b, float64(totalInherent_lat)/float64(total), float64(totalConforming_lat)/float64(total))
 		fmt.Printf("[%d s - %d s]: Average Throughput %d TPS.\n", a, b, (TxMsgReceived-lastTotalTxs)/120)
 	}
 }
