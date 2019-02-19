@@ -38,6 +38,11 @@ type Bucket struct {
 	TXs []*Transaction
 }
 
+type latency struct {
+	inherent_lat	map[string]double{}
+	confirming_lat	map[string]double{}
+}
+
 func (b *Bucket) full() bool {
 	size := len(b.TXs)
 	return size != 0 && size == b.TXs[0].LastIndex+1
@@ -71,9 +76,9 @@ func StartTxFeed(address string) {
 		} else {
 			b.TXs = append(b.TXs, tx)
 		}
-		fmt.Printf("new transaction attached: %+v\n",b)
+		fmt.Printf("new transaction attached: %+v\n", tx)
 		if b.full() {
-			fmt.Printf("new bundle bucket complete: %s\n", b.TXs[0].BundleHash)
+			fmt.Printf("new bundle bucket complete: %+v\n", b)
 		}
 
 		txMsgReceived++
@@ -102,8 +107,8 @@ func StartMilestoneFeed(address string) {
 		}
 		msMsgReceived++
 		milestone := Milestone{msgSplit[1]}
-		fmt.Printf("new milestone attached: %+v\n",msg)
-		fmt.Printf("new milestone attached hash: %+v\n",milestone)
+		fmt.Printf("new milestone attached: %+v\n", msg)
+		fmt.Printf("new milestone attached hash: %+v\n", milestone)
 	}
 }
 
@@ -129,8 +134,8 @@ func StartConfirmationFeed(address string) {
 		}
 		confirmedMsgReceived++
 		confTx := ConfTx{msgSplit[2]}
-		fmt.Printf("confirm transaction: %+v\n",msg)
-		fmt.Printf("confirm transaction hash: %+v\n",confTx)
+		fmt.Printf("confirm transaction: %+v\n", msg)
+		fmt.Printf("confirm transaction hash: %+v\n", confTx)
 	}
 }
 
