@@ -114,8 +114,8 @@ func StartConfirmationFeed(address string) {
         // calculate confirming latency
         _, has := Confirming_lat[tx.Hash]
         if !has {
-            if buckets[tx.BundleHash].TXs[tx.Hash].ArrivalTime - buckets[tx.BundleHash].TXs[tx.Hash].Timestamp > 0 {
-                Confirming_lat[tx.Hash] = time.Now().Unix() - buckets[tx.BundleHash].TXs[tx.Hash].ArrivalTime
+            if buckets[tx.BundleHash].TXs[0].ArrivalTime - buckets[tx.BundleHash].TXs[0].Timestamp > 0 {
+                Confirming_lat[tx.Hash] = time.Now().Unix() - buckets[tx.BundleHash].TXs[0].ArrivalTime
                 Latency[tx.Hash] = Inherent_lat[tx.Hash] + Confirming_lat[tx.Hash]
             }
         } else {
