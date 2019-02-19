@@ -69,8 +69,7 @@ func StartTxFeed(address string) {
             //fmt.Printf("error! transanction repeated\n")
         }
         // add transaction to bucket
-        var b *Bucket
-        b, has = buckets[tx.BundleHash]
+        b, has := buckets[tx.BundleHash]
         if !has {
             b = &Bucket{TXs: []*Transaction{}}
             b.TXs = append(b.TXs, tx)
@@ -114,8 +113,7 @@ func StartConfirmationFeed(address string) {
         // calculate confirming latency
         _, has := Confirming_lat[tx.Hash]
         if !has {
-            var b *Bucket
-            b, has2 = buckets[tx.BundleHash]
+            b, has2 := buckets[tx.BundleHash]
             if has2 {
                 if b.TXs[0].ArrivalTime - b.TXs[0].Timestamp > 0 {
                     Confirming_lat[tx.Hash] = time.Now().Unix() - b.TXs[0].ArrivalTime
