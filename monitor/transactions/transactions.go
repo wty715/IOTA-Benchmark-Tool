@@ -114,9 +114,15 @@ func StartConfirmationFeed(address string) {
         // calculate confirming latency
         _, has := Confirming_lat[tx.Hash]
         if !has {
-            if buckets[tx.BundleHash].TXs[0].ArrivalTime - buckets[tx.BundleHash].TXs[0].Timestamp > 0 {
-                Confirming_lat[tx.Hash] = time.Now().Unix() - buckets[tx.BundleHash].TXs[0].ArrivalTime
-                Latency[tx.Hash] = Inherent_lat[tx.Hash] + Confirming_lat[tx.Hash]
+            var b *Bucket
+            b, has2 = buckets[tx.BundleHash]
+            if has2 {
+                if b.TXs[0].ArrivalTime - b.TXs[0].Timestamp > 0 {
+                    Confirming_lat[tx.Hash] = time.Now().Unix() - b.TXs[0].ArrivalTime
+                    Latency[tx.Hash] = Inherent_lat[tx.Hash] + Confirming_lat[tx.Hash]
+                }
+            } else {
+                continue
             }
         } else {
             //fmt.Printf("error! transanction repeated\n")
