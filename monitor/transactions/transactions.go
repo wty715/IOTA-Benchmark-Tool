@@ -179,7 +179,7 @@ func StartLog(interval int) {
             total++
         }
 
-        a := time.Now().Unix() - Start_time - interval
+        a := time.Now().Unix() - Start_time - int64(interval)
         b := time.Now().Unix() - Start_time
 
         fmt.Printf("[%d s - %d s]: Average Latency %f,\n", a, b, float64(totalLatency)/float64(total))
