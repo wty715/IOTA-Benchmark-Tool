@@ -20,6 +20,7 @@ var ConfirmedMsgReceived = 0
 var buckets = map[string]*Bucket{}
 
 type Transaction struct {
+    Type         string `json:"type"`
     Hash         string `json:"hash"`
     Address      string `json:"address"`
     Value        int    `json:"value"`
@@ -57,6 +58,9 @@ func StartTxFeed(address string) {
         tx := buildTxFromZMQData(msg)
         if tx == nil {
             fmt.Printf("receive error! transaction message format error\n")
+            continue
+        }
+        else if tx[0] == "tx_trytes" {
             continue
         }
         // calculate inherent latency
@@ -200,7 +204,11 @@ func StartLog(interval int) {
 func buildTxFromZMQData(msg string) *Transaction {
     msgSplit := strings.Split(msg, " ")
     if len(msgSplit) != 13 {
-        return nil
+        if msgSplit[0] == "tx_trytes" {
+            return Transaction{msgSplit[0]}
+        } else {
+            return nil
+        }
     }
     var err error
     msgSplit = msgSplit[1:]
