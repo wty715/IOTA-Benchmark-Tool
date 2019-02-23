@@ -56,7 +56,7 @@ func StartTxFeed(address string) {
         must(err)
         tx := buildTxFromZMQData(msg)
         if tx == nil {
-            //fmt.Printf("receive error! transaction message format error\n")
+            fmt.Printf("receive error! transaction message format error\n")
             continue
         }
         // calculate inherent latency
@@ -66,7 +66,7 @@ func StartTxFeed(address string) {
                 Inherent_lat[tx.Hash] = tx.ArrivalTime - tx.Timestamp
             }
         } else {
-            //fmt.Printf("error! transanction repeated\n")
+            fmt.Printf("error! transanction repeated\n")
         }
         // add transaction to bucket
         b, has := buckets[tx.BundleHash]
@@ -78,7 +78,7 @@ func StartTxFeed(address string) {
             b.TXs = append(b.TXs, tx)
         }
         if b.full() {
-            //fmt.Printf("new bundle bucket complete: %+v\n", b)
+            fmt.Printf("new bundle bucket complete: %+v\n", b)
         }
         TxMsgReceived++
         //fmt.Printf("new transaction attached: %+v\n", tx)
@@ -107,7 +107,7 @@ func StartConfirmationFeed(address string) {
         must(err)
         tx := buildConfirmFromZMQData(msg)
         if tx == nil {
-            //fmt.Printf("receive error! confirm message format error\n")
+            fmt.Printf("receive error! confirm message format error\n")
             continue
         }
         // calculate confirming latency
@@ -123,7 +123,7 @@ func StartConfirmationFeed(address string) {
                 continue
             }
         } else {
-            //fmt.Printf("error! transanction repeated\n")
+            fmt.Printf("error! confirm transanction repeated\n")
         }
         ConfirmedMsgReceived++
         //fmt.Printf("confirm transaction: %+v\n", tx)
@@ -149,7 +149,7 @@ func StartMilestoneFeed(address string) {
 
         msgSplit := strings.Split(msg, " ")
         if len(msgSplit) != 2 {
-            //fmt.Printf("receive error! milestone message format error\n")
+            fmt.Printf("receive error! milestone message format error\n")
             continue
         }
         milestone := Milestone{msgSplit[1]}
