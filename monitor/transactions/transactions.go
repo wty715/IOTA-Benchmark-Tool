@@ -57,7 +57,6 @@ func StartTxFeed(address string) {
         tx := buildTxFromZMQData(msg)
         if tx == nil {
             fmt.Printf("receive error! transaction message format error\n")
-            fmt.Printf("error RAW: %s\n", msg)
             continue
         }
         // calculate inherent latency
