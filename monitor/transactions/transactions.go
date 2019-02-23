@@ -64,6 +64,13 @@ func StartTxFeed(address string) {
         if !has {
             if tx.ArrivalTime - tx.Timestamp > 0 {
                 Inherent_lat[tx.Hash] = tx.ArrivalTime - tx.Timestamp
+                if Inherent_lat[tx.Hash] > 100 {
+                    fmt.Printf("!!! ArrivalTime %d, Timestamp %d ???\n", tx.ArrivalTime, tx.Timestamp)
+                }
+            } else if tx.ArrivalTime - tx.Timestamp == 0 {
+                fmt.Printf("milestone detected\n")
+            } else {
+                fmt.Printf("!!! ArrivalTime %d < Timestamp %d ???\n", tx.ArrivalTime, tx.Timestamp)
             }
         } else {
             fmt.Printf("error! transanction repeated\n")
@@ -159,7 +166,7 @@ func StartMilestoneFeed(address string) {
     }
 }
 
-var	Inherent_lat     = map[string]int64{}
+var Inherent_lat     = map[string]int64{}
 var Confirming_lat   = map[string]int64{}
 var Latency          = map[string]int64{}
 var Start_time int64 = time.Now().Unix()
