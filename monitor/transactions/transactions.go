@@ -57,6 +57,7 @@ func StartTxFeed(address string) {
         tx := buildTxFromZMQData(msg)
         if tx == nil {
             fmt.Printf("receive error! transaction message format error\n")
+            fmt.Printf("error RAW: %s\n", msg)
             continue
         }
         // calculate inherent latency
@@ -66,11 +67,8 @@ func StartTxFeed(address string) {
                 Inherent_lat[tx.Hash] = tx.ArrivalTime - tx.Timestamp
                 if Inherent_lat[tx.Hash] > 100 {
                     fmt.Printf("!!! ArrivalTime %d, Timestamp %d ???\n", tx.ArrivalTime, tx.Timestamp)
+                    fmt.Printf("RAW msg: %s\n", msg)
                 }
-            } else if tx.ArrivalTime - tx.Timestamp == 0 {
-                fmt.Printf("milestone detected\n")
-            } else {
-                fmt.Printf("!!! ArrivalTime %d < Timestamp %d ???\n", tx.ArrivalTime, tx.Timestamp)
             }
         } else {
             fmt.Printf("error! transanction repeated\n")
