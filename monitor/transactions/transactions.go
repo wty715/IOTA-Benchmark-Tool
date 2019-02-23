@@ -59,8 +59,7 @@ func StartTxFeed(address string) {
         if tx == nil {
             fmt.Printf("receive error! transaction message format error\n")
             continue
-        }
-        else if tx.Type == "tx_trytes" {
+        } else if tx.Type == "tx_trytes" {
             continue
         }
         // calculate inherent latency
