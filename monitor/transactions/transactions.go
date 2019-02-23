@@ -211,35 +211,35 @@ func buildTxFromZMQData(msg string) *Transaction {
         }
     }
     var err error
-    msgSplit = msgSplit[1:]
     tx := &Transaction{}
-    tx.Hash = msgSplit[0]
-    tx.Address = msgSplit[1]
-    tx.Value, err = strconv.Atoi(msgSplit[2])
+    tx.Type = msgSplit[0]
+    tx.Hash = msgSplit[1]
+    tx.Address = msgSplit[2]
+    tx.Value, err = strconv.Atoi(msgSplit[3])
     if err != nil {
         return nil
     }
-    tx.ObsoleteTag = msgSplit[3]
-    tx.Timestamp, err = strconv.ParseInt(msgSplit[4], 10, 64)
+    tx.ObsoleteTag = msgSplit[4]
+    tx.Timestamp, err = strconv.ParseInt(msgSplit[5], 10, 64)
     if err != nil {
         return nil
     }
-    tx.CurrentIndex, err = strconv.Atoi(msgSplit[5])
+    tx.CurrentIndex, err = strconv.Atoi(msgSplit[6])
     if err != nil {
         return nil
     }
-    tx.LastIndex, err = strconv.Atoi(msgSplit[6])
+    tx.LastIndex, err = strconv.Atoi(msgSplit[7])
     if err != nil {
         return nil
     }
-    tx.BundleHash = msgSplit[7]
-    tx.TrunkTxHash = msgSplit[8]
-    tx.BranchTxHash = msgSplit[9]
-    tx.ArrivalTime, err = strconv.ParseInt(msgSplit[10], 10, 64)
+    tx.BundleHash = msgSplit[8]
+    tx.TrunkTxHash = msgSplit[9]
+    tx.BranchTxHash = msgSplit[10]
+    tx.ArrivalTime, err = strconv.ParseInt(msgSplit[11], 10, 64)
     if err != nil {
         return nil
     }
-    tx.Tag = msgSplit[11]
+    tx.Tag = msgSplit[12]
     return tx
 }
 
