@@ -204,7 +204,7 @@ func buildTxFromZMQData(msg string) *Transaction {
     msgSplit := strings.Split(msg, " ")
     if len(msgSplit) != 13 {
         if msgSplit[0] == "tx_trytes" {
-            return Transaction{msgSplit[0]}
+            return &Transaction{Type:msgSplit[0]}
         } else {
             return nil
         }
