@@ -57,23 +57,24 @@ func StartTxFeed(address string) {
         must(err)
         tx := buildTxFromZMQData(msg)
         if tx == nil {
-            fmt.Printf("receive error! transaction message format error\n")
+            fmt.Printf("tx: receive error! message format error\n")
             continue
         } else if tx.Type == "tx_trytes" {
+            fmt.Printf("tx: trytes received, skip it\n")
             continue
         }
         // calculate inherent latency
         _, has := Inherent_lat[tx.Hash]
         if !has {
-            if tx.ArrivalTime - tx.Timestamp > 0 {
+            if tx.ArrivalTime - tx.Timestamp*1000 > 0 {
                 Inherent_lat[tx.Hash] = tx.ArrivalTime - tx.Timestamp
-                if Inherent_lat[tx.Hash] > 100 {
-                    fmt.Printf("!!! ArrivalTime %d, Timestamp %d ???\n", tx.ArrivalTime, tx.Timestamp)
-                    fmt.Printf("RAW msg: %s\n", msg)
-                }
+            } else if tx.ArrivalTime == tx.Timestamp {
+                fmt.Printf("tx: milestone detected\n")
+            } else {
+                fmt.Printf("tx: error! wallet sent trans to monitoring IRI\n")
             }
         } else {
-            fmt.Printf("error! transanction repeated\n")
+            fmt.Printf("tx: error! transanction repeated\n")
         }
         // add transaction to bucket
         b, has := buckets[tx.BundleHash]
@@ -114,7 +115,7 @@ func StartConfirmationFeed(address string) {
         must(err)
         tx := buildConfirmFromZMQData(msg)
         if tx == nil {
-            fmt.Printf("receive error! confirm message format error\n")
+            fmt.Printf("confirm: receive error! message format error\n")
             continue
         }
         // calculate confirming latency
@@ -122,15 +123,19 @@ func StartConfirmationFeed(address string) {
         if !has {
             b, has2 := buckets[tx.BundleHash]
             if has2 {
-                if b.TXs[0].ArrivalTime - b.TXs[0].Timestamp > 0 {
-                    Confirming_lat[tx.Hash] = time.Now().Unix() - b.TXs[0].ArrivalTime
+                if b.TXs[0].ArrivalTime - b.TXs[0].Timestamp*1000 > 0 {
+                    Confirming_lat[tx.Hash] = time.Now().UnixNano()/1e6 - b.TXs[0].ArrivalTime
                     Latency[tx.Hash] = Inherent_lat[tx.Hash] + Confirming_lat[tx.Hash]
+                } else if tx.ArrivalTime == tx.Timestamp {
+                    fmt.Printf("confirm: milestone detected\n")
+                } else {
+                    fmt.Printf("confirm: error! wallet sent trans to monitoring IRI\n")
                 }
             } else {
                 continue
             }
         } else {
-            fmt.Printf("error! confirm transanction repeated\n")
+            fmt.Printf("confirm: error! transanction repeated\n")
         }
         ConfirmedMsgReceived++
         //fmt.Printf("confirm transaction: %+v\n", tx)
@@ -156,7 +161,7 @@ func StartMilestoneFeed(address string) {
 
         msgSplit := strings.Split(msg, " ")
         if len(msgSplit) != 2 {
-            fmt.Printf("receive error! milestone message format error\n")
+            fmt.Printf("milestone: receive error! message format error\n")
             continue
         }
         milestone := Milestone{msgSplit[1]}
