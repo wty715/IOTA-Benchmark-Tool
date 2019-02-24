@@ -126,7 +126,7 @@ func StartConfirmationFeed(address string) {
                 if b.TXs[0].ArrivalTime - b.TXs[0].Timestamp*1000 > 0 {
                     Confirming_lat[tx.Hash] = time.Now().UnixNano()/1e6 - b.TXs[0].ArrivalTime
                     Latency[tx.Hash] = Inherent_lat[tx.Hash] + Confirming_lat[tx.Hash]
-                } else if tx.ArrivalTime == tx.Timestamp {
+                } else if b.TXs[0].ArrivalTime == b.TXs[0].Timestamp {
                     fmt.Printf("confirm: milestone detected\n")
                 } else {
                     fmt.Printf("confirm: error! wallet sent trans to monitoring IRI\n")
