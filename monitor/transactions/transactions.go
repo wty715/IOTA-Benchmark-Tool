@@ -121,11 +121,16 @@ func StartConfirmationFeed(address string) {
             b, has2 := buckets[tx.BundleHash]
             if has2 {
                 if b.TXs[0].ArrivalTime - b.TXs[0].Timestamp*1000 >= 0 {
-                    Confirming_lat[tx.Hash] = time.Now().UnixNano()/1e6 - b.TXs[0].ArrivalTime
+                    Confirming_lat[tx.Hash] = int64(time.Now().UnixNano()/1e6) - b.TXs[0].ArrivalTime
                 } else {
-                    Confirming_lat[tx.Hash] = time.Now().UnixNano()/1e6 - b.TXs[0].ArrivalTime*1000
+                    Confirming_lat[tx.Hash] = int64(time.Now().UnixNano()/1e6) - b.TXs[0].ArrivalTime*1000
                 }
-                Latency[tx.Hash] = Inherent_lat[tx.Hash] + Confirming_lat[tx.Hash]
+                if Confirming_lat[tx.Hash] < 0 {
+                    fmt.Printf("ERROR!!! nowTime %d, Inherent_lat %d\n", int64(time.Now().UnixNano()/1e6), Inherent_lat[tx.Hash])
+                    fmt.Printf("ERROR!!! transaction: %+v\n", b.TXs[0])
+                } else {
+                    Latency[tx.Hash] = Inherent_lat[tx.Hash] + Confirming_lat[tx.Hash]
+                }
             } else {
                 continue
             }
@@ -174,7 +179,6 @@ var Start_time int64 = time.Now().Unix()
 func StartLog(interval int) {
     for {
         lastTotalTxs := TxMsgReceived
-        Confirming_lat = make(map[string]int64)
         Latency = make(map[string]int64)
 
         time.Sleep(time.Duration(interval) * time.Second)
