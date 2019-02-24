@@ -68,7 +68,7 @@ func StartTxFeed(address string) {
             if tx.ArrivalTime - tx.Timestamp*1000 > 0 {
                 Inherent_lat[tx.Hash] = tx.ArrivalTime - tx.Timestamp*1000
             } else {
-                //fmt.Printf("tx: milestone detected\n")
+                Inherent_lat[tx.Hash] = tx.ArrivalTime*1000 - tx.Timestamp*1000
             }
         } else {
             fmt.Printf("tx: error! transanction repeated\n")
@@ -122,10 +122,10 @@ func StartConfirmationFeed(address string) {
             if has2 {
                 if b.TXs[0].ArrivalTime - b.TXs[0].Timestamp*1000 > 0 {
                     Confirming_lat[tx.Hash] = time.Now().UnixNano()/1e6 - b.TXs[0].ArrivalTime
-                    Latency[tx.Hash] = Inherent_lat[tx.Hash] + Confirming_lat[tx.Hash]
                 } else {
-                    //fmt.Printf("confirm: milestone detected\n")
+                    Confirming_lat[tx.Hash] = time.Now().UnixNano()/1e6 - b.TXs[0].ArrivalTime*1000
                 }
+                Latency[tx.Hash] = Inherent_lat[tx.Hash] + Confirming_lat[tx.Hash]
             } else {
                 continue
             }
