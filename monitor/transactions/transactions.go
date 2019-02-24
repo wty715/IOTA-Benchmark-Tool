@@ -65,7 +65,7 @@ func StartTxFeed(address string) {
         // calculate inherent latency
         _, has := Inherent_lat[tx.Hash]
         if !has {
-            if tx.ArrivalTime - tx.Timestamp*1000 >= 0 {
+            if tx.ArrivalTime > tx.Timestamp*1000 {
                 Inherent_lat[tx.Hash] = tx.ArrivalTime - tx.Timestamp*1000
             } else {
                 Inherent_lat[tx.Hash] = tx.ArrivalTime*1000 - tx.Timestamp*1000
@@ -120,7 +120,7 @@ func StartConfirmationFeed(address string) {
         if !has {
             b, has2 := buckets[tx.BundleHash]
             if has2 {
-                if b.TXs[0].ArrivalTime - b.TXs[0].Timestamp*1000 >= 0 {
+                if b.TXs[0].ArrivalTime > b.TXs[0].Timestamp*1000 {
                     Confirming_lat[tx.Hash] = int64(time.Now().UnixNano()/1e6) - b.TXs[0].ArrivalTime
                 } else {
                     Confirming_lat[tx.Hash] = int64(time.Now().UnixNano()/1e6) - b.TXs[0].ArrivalTime*1000
