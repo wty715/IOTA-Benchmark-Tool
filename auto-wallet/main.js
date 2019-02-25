@@ -10,7 +10,8 @@ const config = {'host'                : require('./config.json').host,
                 'tag'                 : require('./config.json').tag,
                 'depth'               : require('./config.json').depth,
                 'minWeightMagnitude'  : require('./config.json').minWeightMagnitude,
-                'txsPerSecond'        : require('./config.json').txsPerSecond
+                'txsPerInterval'      : require('./config.json').txsPerInterval,
+                'interval'            : require('./config.json').interval
                }
 const IOTA = require('iota.lib.js')
 const iota = new IOTA({
@@ -44,10 +45,10 @@ if (cluster.isMaster) {
     }
   })
   setInterval(function() {
-    for (var i = 0; i < config.txsPerSecond; i++) {
+    for (var i = 0; i < config.txsPerInterval; i++) {
       cluster.fork();
     }
-  }, 1000)
+  }, config.interval*1000)
 }
 else {
   //console.log("Prepare transfer: " + config.address + " -> " + config.amount);
