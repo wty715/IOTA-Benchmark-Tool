@@ -51,7 +51,7 @@ if (cluster.isMaster) {
 }
 else {
   //console.log("Prepare transfer: " + config.address + " -> " + config.amount);
-  process.send({'type':'log','msg':"Prepare transfer: " + config.address + " -> " + config.amount});
+  //process.send({'type':'log','msg':"Prepare transfer: " + config.address + " -> " + config.amount});
 
   getUnspentInputs(config.seed, 0, config.amount, function(error, inputs) {
     if (error && error.message !== 'Not enough balance') {
@@ -73,7 +73,7 @@ else {
     }
 
     //console.log('Unspent input txs got.');
-    process.send({'type':'log','msg':'Unspent input txs got.'});
+    //process.send({'type':'log','msg':'Unspent input txs got.'});
 
     var transfers = [{"address": config.address, "value": config.amount, "message": "", "tag": config.tag}];
     var outputsToCheck = transfers.map(transfer => iota.utils.noChecksum(transfer.address)); // delete the last 9 bytes checksum
@@ -88,7 +88,7 @@ else {
       }
 
       //console.log('Output address checked.');
-      process.send({'type':'log','msg':'Output address checked.'});
+      //process.send({'type':'log','msg':'Output address checked.'});
 
       iota.api.prepareTransfers(config.seed, transfers, {"inputs": inputs.inputs}, function(error, trytes) {
         if (error) {
@@ -112,7 +112,7 @@ else {
         }
 
         //console.log('The whole tranfer checked.');
-        process.send({'type':'log','msg':'The whole tranfer checked.'});
+        //process.send({'type':'log','msg':'The whole tranfer checked.'});
 
         iota.api.sendTrytes(trytes, config.depth, config.minWeightMagnitude, (error, transfers) => {
           if (error) {
@@ -122,7 +122,7 @@ else {
             process.exit();
           } else {
             //console.log("UI.handleTransfers: Success");
-            process.send({'type':'log','msg':'UI.handleTransfers: Success'});
+            //process.send({'type':'log','msg':'UI.handleTransfers: Success'});
             //return;
             process.exit();
           }
@@ -153,7 +153,7 @@ function getUnspentInputs (seed, start, threshold, inputs, callback) {
   }
 
   //console.log('Preparing to get all input txs......');
-  process.send({'type':'log','msg':'Preparing to get all input txs......'});
+  //process.send({'type':'log','msg':'Preparing to get all input txs......'});
 
   iota.api.getInputs(seed, {start: start, threshold: threshold}, (err, res) => { // all addresses with balance
     if (err) {
@@ -162,7 +162,7 @@ function getUnspentInputs (seed, start, threshold, inputs, callback) {
     }
 
     //console.log('All input txs got.');
-    process.send({'type':'log','msg':'All input txs got.'});
+    //process.send({'type':'log','msg':'All input txs got.'});
     
     inputs.allBalance += res.inputs.reduce((sum, input) => sum + input.balance, 0) // calculate the sum of balance in all addresses
     filterSpentAddresses(res.inputs).then(filtered => {
