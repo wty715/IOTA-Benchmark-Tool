@@ -7,9 +7,9 @@ Including three parts:
 For auto-wallet, run it with following steps:
 1. cd auto-wallet
 2. npm install
-3. node main.js
+3. ./start.sh
 
 For monitor, run it with following steps:
 1. cd monitor
 2. go build
-3. ./monitor
+3. ./start.sh
