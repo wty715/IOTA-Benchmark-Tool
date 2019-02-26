@@ -6,7 +6,7 @@ import (
     "syscall"
     "time"
     "fmt"
-    "IOTA-Benchmark-Tool-master/monitor/transactions"
+    "IOTA-Benchmark-Tool/monitor/transactions"
     "github.com/pebbe/zmq4"
     "encoding/json"
     "io/ioutil"
