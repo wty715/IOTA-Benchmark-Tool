@@ -35,15 +35,15 @@ iota.api.getNodeInfo((error, nodeInfo) => {
 if (cluster.isMaster) {
   cluster.on('exit', (worker, code, signal) => {
     var timeStamp = new Date().toISOString()
-    console.log('[' + timeStamp + ']' + 'Child' + worker.id + 'finished.');
+    console.log('[' + timeStamp + ']: ' + 'Child' + worker.id + 'finished.');
   })
   cluster.on('message', (worker, message, handle) => {
     var timeStamp = new Date().toISOString()
     if (message.type == 'error') {
-      console.log('[' + timeStamp + ']' + 'Child ' + worker.id + ' error! Reason: ' + message.msg);
+      console.log('[' + timeStamp + ']: ' + 'Child ' + worker.id + ' error! Reason: ' + message.msg);
     }
     else if (message.type == 'log') {
-      console.log('[' + timeStamp + ']' + 'Child ' + worker.id + ' sent: ' + message.msg);
+      console.log('[' + timeStamp + ']: ' + 'Child ' + worker.id + ' sent: ' + message.msg);
     }
   })
   setInterval(function() {
