@@ -142,9 +142,9 @@ func StartConfirmationFeed(address string) {
         t, has := transactions[tx.Hash]
         if has {
             if t.ArrivalTime+50 > t.Timestamp*1000 {
-                t.Confirm_lat = int64(time.Now().UnixNano()/1e6) - b.TXs[0].ArrivalTime
+                t.Confirm_lat = int64(time.Now().UnixNano()/1e6) - t.ArrivalTime
             } else {
-                t.Confirm_lat = int64(time.Now().UnixNano()/1e6) - b.TXs[0].ArrivalTime*1000
+                t.Confirm_lat = int64(time.Now().UnixNano()/1e6) - t.ArrivalTime*1000
             }
             if t.Confirm_lat < 0 {
                 fmt.Printf("ERROR!!! nowTime %d, Inherent_lat %d\n", int64(time.Now().UnixNano()/1e6), t.Inherent_lat)
@@ -219,7 +219,7 @@ func StartLog(interval int) {
         fmt.Printf("[%d s - %d s]: Average Latency %f,\n", a, b, float64(totalLatency)/float64(total))
         fmt.Printf("[%d s - %d s]: Including inherent latency %f and confirming latency %f.\n", a, b, float64(totalInherent_lat)/float64(total), float64(totalConfirm_lat)/float64(total))
         fmt.Printf("[%d s - %d s]: Average Throughput %d TPS.\n", a, b, (TxMsgReceived-lastTotalTxs)/interval)
-        fmt.Printf("[ 0 s - %d s]: Totally Tips ratio: %f, Confirmed ratio: %f.\n", b, float(TotalTips)/float(TxMsgReceived), float(ConfirmedMsgReceived)/float(TxMsgReceived))
+        fmt.Printf("[ 0 s - %d s]: Totally Tips ratio: %f, Confirmed ratio: %f.\n", b, float32(TotalTips)/float32(TxMsgReceived), float32(ConfirmedMsgReceived)/float32(TxMsgReceived))
         fmt.Printf("\n")
     }
 }
