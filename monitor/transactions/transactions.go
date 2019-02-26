@@ -193,9 +193,9 @@ func StartMilestoneFeed(address string) {
 }
 
 var Interval_txs []string
+var Start_time int64 = time.Now().Unix()
 
 func StartLog(interval int) {
-    var Start_time int64 = time.Now().Unix()
     for {
         lastTotalTxs := TxMsgReceived
         Interval_txs = Interval_txs[0:0]
