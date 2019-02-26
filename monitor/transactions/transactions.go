@@ -84,7 +84,7 @@ func StartTxFeed(address string) {
                     t.Status = "Approved"
                 }
             }
-            t, has := transactions[tx.TrunkTxHash]
+            t, has = transactions[tx.TrunkTxHash]
             if has {
                 if t.Status == "Tips" {
                     TotalTips--
@@ -192,7 +192,7 @@ func StartMilestoneFeed(address string) {
     }
 }
 
-var Interval_txs []string{}
+var Interval_txs []string
 
 func StartLog(interval int) {
     var Start_time int64 = time.Now().Unix()
