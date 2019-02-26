@@ -16,8 +16,8 @@ func must(err error) {
 
 var MsMsgReceived = 0
 var TxMsgReceived = 0
+var TotalTips = 0
 var ConfirmedMsgReceived = 0
-var buckets = map[string]*Bucket{}
 
 type Transaction struct {
     Type         string `json:"type"`
@@ -33,11 +33,16 @@ type Transaction struct {
     BranchTxHash string `json:"branch_tx_hash"`
     ArrivalTime  int64  `json:"arrival_time"`
     Tag          string `json:"tag"`
+    Status       string `json:"status"`
+    Inherent_lat int64  `json:"inherent_latency"`
+    Confirm_lat  int64  `json:"confirm_latency"`
 }
-
 type Bucket struct {
     TXs []*Transaction
 }
+
+var buckets = map[string]*Bucket{}
+var transactions = map[string]*Transaction{}
 
 func (b *Bucket) full() bool {
     size := len(b.TXs)
@@ -62,16 +67,34 @@ func StartTxFeed(address string) {
         } else if tx.Type == "tx_trytes" {
             continue
         }
-        // calculate inherent latency
-        _, has := Inherent_lat[tx.Hash]
+        // store transaction & calculate inherent latency
+        _, has := transactions[tx.Hash]
         if !has {
-            if tx.ArrivalTime > tx.Timestamp*1000 {
-                Inherent_lat[tx.Hash] = tx.ArrivalTime - tx.Timestamp*1000
+            if tx.ArrivalTime+50 > tx.Timestamp*1000 {
+                tx.Inherent_lat = tx.ArrivalTime+50 - tx.Timestamp*1000
             } else {
-                Inherent_lat[tx.Hash] = tx.ArrivalTime*1000 - tx.Timestamp*1000
+                tx.Inherent_lat = tx.ArrivalTime*1000+50 - tx.Timestamp*1000
             }
+            tx.Status = "Tips"
+            TotalTips++
+            t, has := transactions[tx.BranchTxHash]
+            if has {
+                if t.Status == "Tips" {
+                    TotalTips--
+                    t.Status = "Approved"
+                }
+            }
+            t, has := transactions[tx.TrunkTxHash]
+            if has {
+                if t.Status == "Tips" {
+                    TotalTips--
+                    t.Status = "Approved"
+                }
+            }
+            transactions[tx.Hash] = tx
         } else {
             fmt.Printf("tx: error! transanction repeated\n")
+            continue
         }
         // add transaction to bucket
         b, has := buckets[tx.BundleHash]
@@ -116,28 +139,26 @@ func StartConfirmationFeed(address string) {
             continue
         }
         // calculate confirming latency
-        _, has := Confirming_lat[tx.Hash]
-        if !has {
-            b, has2 := buckets[tx.BundleHash]
-            if has2 {
-                if b.TXs[0].ArrivalTime > b.TXs[0].Timestamp*1000 {
-                    Confirming_lat[tx.Hash] = int64(time.Now().UnixNano()/1e6) - b.TXs[0].ArrivalTime
-                } else {
-                    Confirming_lat[tx.Hash] = int64(time.Now().UnixNano()/1e6) - b.TXs[0].ArrivalTime*1000
-                }
-                if Confirming_lat[tx.Hash] < 0 {
-                    fmt.Printf("ERROR!!! nowTime %d, Inherent_lat %d\n", int64(time.Now().UnixNano()/1e6), Inherent_lat[tx.Hash])
-                    fmt.Printf("ERROR!!! transaction: %+v\n", b.TXs[0])
-                } else {
-                    Latency[tx.Hash] = Inherent_lat[tx.Hash] + Confirming_lat[tx.Hash]
-                }
+        t, has := transactions[tx.Hash]
+        if has {
+            if t.ArrivalTime+50 > t.Timestamp*1000 {
+                t.Confirm_lat = int64(time.Now().UnixNano()/1e6) - b.TXs[0].ArrivalTime
             } else {
-                continue
+                t.Confirm_lat = int64(time.Now().UnixNano()/1e6) - b.TXs[0].ArrivalTime*1000
             }
+            if t.Confirm_lat < 0 {
+                fmt.Printf("ERROR!!! nowTime %d, Inherent_lat %d\n", int64(time.Now().UnixNano()/1e6), t.Inherent_lat)
+                fmt.Printf("ERROR!!! transaction: %+v\n", *t)
+            }
+            if t.Status == "Tips" {
+                TotalTips--
+            }
+            t.Status = "Confirmed"
+            Interval_txs = append(Interval_txs, tx.Hash)
+            ConfirmedMsgReceived++
         } else {
-            fmt.Printf("confirm: error! transanction repeated\n")
+            continue
         }
-        ConfirmedMsgReceived++
         //fmt.Printf("confirm transaction: %+v\n", tx)
         //fmt.Printf("RAW msg: %s\n", msg)
     }
@@ -171,26 +192,24 @@ func StartMilestoneFeed(address string) {
     }
 }
 
-var Inherent_lat     = map[string]int64{}
-var Confirming_lat   = map[string]int64{}
-var Latency          = map[string]int64{}
-var Start_time int64 = time.Now().Unix()
+var Interval_txs []string{}
 
 func StartLog(interval int) {
+    var Start_time int64 = time.Now().Unix()
     for {
         lastTotalTxs := TxMsgReceived
-        Latency = make(map[string]int64)
+        Interval_txs = Interval_txs[0:0]
 
         time.Sleep(time.Duration(interval) * time.Second)
 
-        var totalLatency        int64 = 0
-        var totalInherent_lat   int64 = 0
-        var totalConforming_lat int64 = 0
+        var totalLatency      int64 = 0
+        var totalInherent_lat int64 = 0
+        var totalConfirm_lat  int64 = 0
         var total = 0
-        for k, v := range Latency {
-            totalLatency += v
-            totalInherent_lat += Inherent_lat[k]
-            totalConforming_lat += Confirming_lat[k]
+        for _, v := range Interval_txs {
+            totalLatency += transactions[v].Inherent_lat + transactions[v].Confirm_lat
+            totalInherent_lat += transactions[v].Inherent_lat
+            totalConfirm_lat += transactions[v].Confirm_lat
             total++
         }
 
@@ -198,8 +217,9 @@ func StartLog(interval int) {
         b := time.Now().Unix() - Start_time
 
         fmt.Printf("[%d s - %d s]: Average Latency %f,\n", a, b, float64(totalLatency)/float64(total))
-        fmt.Printf("[%d s - %d s]: Including inherent latency %f and confirming latency %f.\n", a, b, float64(totalInherent_lat)/float64(total), float64(totalConforming_lat)/float64(total))
+        fmt.Printf("[%d s - %d s]: Including inherent latency %f and confirming latency %f.\n", a, b, float64(totalInherent_lat)/float64(total), float64(totalConfirm_lat)/float64(total))
         fmt.Printf("[%d s - %d s]: Average Throughput %d TPS.\n", a, b, (TxMsgReceived-lastTotalTxs)/interval)
+        fmt.Printf("[ 0 s - %d s]: Totally Tips ratio: %f, Confirmed ratio: %f.\n", b, float(TotalTips)/float(TxMsgReceived), float(ConfirmedMsgReceived)/float(TxMsgReceived))
         fmt.Printf("\n")
     }
 }
