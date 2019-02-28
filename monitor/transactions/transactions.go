@@ -218,7 +218,7 @@ func StartLog(interval int) {
 
         fmt.Printf("[%d s - %d s]: Average Latency %f,\n", a, b, float64(totalLatency)/float64(total))
         fmt.Printf("[%d s - %d s]: Including inherent latency %f and confirming latency %f.\n", a, b, float64(totalInherent_lat)/float64(total), float64(totalConfirm_lat)/float64(total))
-        fmt.Printf("[%d s - %d s]: Average Throughput %d TPS.\n", a, b, (TxMsgReceived-lastTotalTxs)/interval)
+        fmt.Printf("[%d s - %d s]: Average Throughput %f TPS.\n", a, b, float32(TxMsgReceived-lastTotalTxs)/float32(interval))
         fmt.Printf("[ 0 s - %d s]: Totally Tips ratio: %f, Confirmed ratio: %f.\n", b, float32(TotalTips)/float32(TxMsgReceived), float32(ConfirmedMsgReceived)/float32(TxMsgReceived))
         fmt.Printf("\n")
     }
