@@ -1,0 +1,1 @@
+nohup node double.js >> double_spending_output.log 2>&1 &
