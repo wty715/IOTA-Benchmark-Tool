@@ -95,7 +95,7 @@ getUnspentInputs(config.seed, 0, config.amount, function(error, inputs) {
                 finalTxs.push(iota.utils.transactionObject(trytes));
             })
             console.log("Transfer normally: Success");
-            console.log(finalTxs);
+            //console.log(finalTxs);
           })
         })
       })
@@ -123,7 +123,7 @@ getUnspentInputs(config.seed, 0, config.amount, function(error, inputs) {
                 finalTxs.push(iota.utils.transactionObject(trytes));
             })
             console.log("Double spending: Success");
-            console.log(finalTxs);
+            //console.log(finalTxs);
           })
         })
       })
