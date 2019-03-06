@@ -6,6 +6,7 @@ import (
     "strings"
     "strconv"
     "time"
+    "container/list"
 )
 
 func must(err error) {
@@ -40,9 +41,14 @@ type Transaction struct {
 type Bucket struct {
     TXs []*Transaction
 }
+type Double struct {
+    TXs     []*Transaction
+    visited bool
+}
 
 var buckets = map[string]*Bucket{}
 var transactions = map[string]*Transaction{}
+var doubles = map[string]*Double{}
 
 func (b *Bucket) full() bool {
     size := len(b.TXs)
@@ -77,6 +83,7 @@ func StartTxFeed(address string) {
             }
             tx.Status = "Tips"
             TotalTips++
+            // change tips status
             t, has := transactions[tx.BranchTxHash]
             if has {
                 if t.Status == "Tips" {
@@ -91,7 +98,24 @@ func StartTxFeed(address string) {
                     t.Status = "Approved"
                 }
             }
+            // store txs and create graph
             transactions[tx.Hash] = tx
+            d, has := doubles[tx.BranchTxHash]
+            if !has {
+                d = &Double{TXs: []*Transaction{}, visited: false}
+                d.TXs = append(d.TXs, tx)
+                doubles[tx.BranchTxHash] = d
+            } else {
+                d.TXs = append(d.TXs, tx)
+            }
+            d, has = doubles[tx.TrunkTxHash]
+            if !has {
+                d = &Double{TXs: []*Transaction{}, visited: false}
+                d.TXs = append(d.TXs, tx)
+                doubles[tx.BranchTxHash] = d
+            } else {
+                d.TXs = append(d.TXs, tx)
+            }
         } else {
             fmt.Printf("tx: error! transanction repeated\n")
             continue
@@ -164,10 +188,6 @@ func StartConfirmationFeed(address string) {
     }
 }
 
-type Milestone struct {
-    Hash string `json:"hash"`
-}
-
 func StartMilestoneFeed(address string) {
     socket, err := zmq4.NewSocket(zmq4.SUB)
     must(err)
@@ -185,10 +205,43 @@ func StartMilestoneFeed(address string) {
             fmt.Printf("milestone: receive error! message format error\n")
             continue
         }
-        milestone := Milestone{msgSplit[1]}
-        
         MsMsgReceived++
-        fmt.Printf("new milestone attached: %+v\n", milestone)
+        fmt.Printf("new milestone attached: %s\n", msgSplit[1])
+    }
+}
+
+func StartDoubleFeed(address string) {
+    socket, err := zmq4.NewSocket(zmq4.SUB)
+    must(err)
+    socket.SetSubscribe("double")
+    err = socket.Connect(address)
+    must(err)
+
+    fmt.Printf("started double-spending feed\n")
+    for {
+        msg, err := socket.Recv(0)
+        must(err)
+
+        msgSplit := strings.Split(msg, " ")
+        if len(msgSplit) != 2 {
+            fmt.Printf("double-spending: receive error! message format error\n")
+            continue
+        }
+        
+        fmt.Printf("double-spending detected: %s\n", msgSplit[1])
+        // begin BFS
+        effected_txs := 0
+        que := list.New()
+        que.PushBack(msgSplit[1])
+        for que.Len() != 0 {
+            cur := que.Front()
+            que.Remove(cur)
+            effected_txs++
+            for _, v := range double_effects[cur].TXs {
+                que.PushBack(v.Hash)
+            }
+        }
+        fmt.Printf("double-spending effected %d txs to be reattached.\n", effected_txs)
     }
 }
 

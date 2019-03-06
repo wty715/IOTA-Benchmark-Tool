@@ -49,6 +49,7 @@ func main() {
     go transactions.StartTxFeed(value.Zmq_Address)
     go transactions.StartMilestoneFeed(value.Zmq_Address)
     go transactions.StartConfirmationFeed(value.Zmq_Address)
+    go transactions.StartDoubleFeed(value.Zmq_Address)
     go transactions.StartLog(value.Interval)
 
     select {

@@ -2,7 +2,7 @@
   "name": "double-spending",
   "version": "1.0.0",
   "description": "A script for sending double-spending transactions",
-  "main": "double.js",
+  "main": "main.js",
   "dependencies": {},
   "devDependencies": {
     "curl.lib.js": "^1.0.22",
