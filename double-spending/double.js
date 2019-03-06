@@ -76,16 +76,19 @@ getUnspentInputs(config.seed, 0, config.amount, function(error, inputs) {
       iota.api.getTransactionsToApprove(config.depth, {}, function(error, toApprove) {
         if (error) {
           console.log(error);
+          return;
         }
         // attach to tangle - do pow
         iota.api.attachToTangle(toApprove.trunkTransaction, toApprove.branchTransaction, config.minWeightMagnitude, trytes, function(error, attached) {
           if (error) {
             console.log(error);
+            return;
           }
           // Broadcast and store tx
           iota.api.storeAndBroadcast(attached, function(error, success) {
             if (error) {
               console.log(error);
+              return;
             }
             var finalTxs = [];
             attached.forEach(function(trytes) {
