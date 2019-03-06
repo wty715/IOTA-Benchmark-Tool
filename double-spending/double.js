@@ -92,7 +92,7 @@ getUnspentInputs(config.seed, 0, config.amount, function(error, inputs) {
             }
             var finalTxs = [];
             attached.forEach(function(trytes) {
-                finalTxs.push(Utils.transactionObject(trytes));
+                finalTxs.push(iota.utils.transactionObject(trytes));
             })
             console.log("Transfer normally: Success");
             console.log(finalTxs);
