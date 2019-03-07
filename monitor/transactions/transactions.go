@@ -239,8 +239,9 @@ func StartDoubleFeed(address string) {
             doubles[cur].visited = true
             effected_txs++
             for _, v := range doubles[cur].TXs {
-                if !doubles[v.Hash].visited
+                if !doubles[v.Hash].visited {
                     que.PushBack(v.Hash)
+                }
             }
         }
         fmt.Printf("double-spending effected %d txs to be reattached.\n", effected_txs)
