@@ -234,16 +234,19 @@ func StartDoubleFeed(address string) {
         effected_txs := 0
         que := list.New()
         que.PushBack(msgSplit[1])
+        doubles[msgSplit[1]].visited = true
         for que.Len() != 0 {
             cur := que.Front()
             que.Remove(cur)
+            fmt.Printf("current queue front: %s\n", cur.Value.(string))
             effected_txs++
             d, has := doubles[cur.Value.(string)]
+            fmt.Printf("if there are txs connected behind: %d\n", has)
             if has {
-                d.visited = true
                 for _, v := range d.TXs {
                     if !doubles[v.Hash].visited {
                         que.PushBack(v.Hash)
+                        doubles[v.Hash].visited = true
                     }
                 }
             }
