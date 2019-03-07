@@ -71,6 +71,7 @@ func StartTxFeed(address string) {
             fmt.Printf("tx: receive error! message format error\n")
             continue
         } else if tx.Type == "tx_trytes" {
+            //fmt.Printf("tx: trytes received. Skip.\n")
             continue
         }
         // store transaction & calculate inherent latency
@@ -112,7 +113,7 @@ func StartTxFeed(address string) {
             if !has {
                 d = &Double{TXs: []*Transaction{}, visited: false}
                 d.TXs = append(d.TXs, tx)
-                doubles[tx.BranchTxHash] = d
+                doubles[tx.TrunkTxHash] = d
             } else {
                 d.TXs = append(d.TXs, tx)
             }
