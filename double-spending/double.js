@@ -6,7 +6,8 @@ const config = {
   'language'            : require('./config.json').language,
   'tag'                 : require('./config.json').tag,
   'depth'               : require('./config.json').depth,
-  'minWeightMagnitude'  : require('./config.json').minWeightMagnitude
+  'minWeightMagnitude'  : require('./config.json').minWeightMagnitude,
+  'debugging_log'       : require('./config.json').debugging_log
 }
 const IOTA = require('iota.lib.js')
 const iota = new IOTA({
@@ -124,7 +125,9 @@ getUnspentInputs(config.seed, 0, config.amount, function(error, inputs) {
             attached.forEach(function(trytes) {
                 finalTxs.push(iota.utils.transactionObject(trytes))
             })
-            //console.log(finalTxs)
+            if (config.debugging_log) {
+              console.log(finalTxs)
+            }
             //console.log("Transfer normally: Success")
             process.send({'type':'log','msg':'Transfer normally: Success'})
             //return

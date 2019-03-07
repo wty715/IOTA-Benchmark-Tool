@@ -8,5 +8,6 @@
   "address2": "JJGTKWRD9AWSLSERELNMYVDBVVOMMGM9ZJOJ9ZMWFSMVRHECWLLKXDUWS9QAITOYTZCHMSDJUQCEFDJUDQOAT9ECPD",
   "tag": "",
   "depth": 3,
-  "minWeightMagnitude": 9
+  "minWeightMagnitude": 9,
+  "debugging_log": true
 }
