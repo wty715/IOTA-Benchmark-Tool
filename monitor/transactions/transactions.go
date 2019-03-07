@@ -236,11 +236,14 @@ func StartDoubleFeed(address string) {
         for que.Len() != 0 {
             cur := que.Front()
             que.Remove(cur)
-            doubles[cur.Value.(string)].visited = true
             effected_txs++
-            for _, v := range doubles[cur.Value.(string)].TXs {
-                if !doubles[v.Hash].visited {
-                    que.PushBack(v.Hash)
+            d, has := doubles[cur.Value.(string)]
+            if has {
+                d.visited = true
+                for _, v := range d.TXs {
+                    if !doubles[v.Hash].visited {
+                        que.PushBack(v.Hash)
+                    }
                 }
             }
         }
