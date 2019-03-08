@@ -236,6 +236,7 @@ func StartDoubleFeed(address string) {
         for hash, tx := range transactions {
             if tx.Address == msgSplit[1] {
                 que.PushBack(hash)
+                effected_txs++
                 d, has := doubles[hash]
                 if has {
                     d.visited = true
@@ -247,13 +248,16 @@ func StartDoubleFeed(address string) {
             cur := que.Front()
             que.Remove(cur)
             fmt.Printf("current queue front: %s\n", cur.Value.(string))
-            effected_txs++
             d, has := doubles[cur.Value.(string)]
             if has {
                 for _, v := range d.TXs {
-                    if !doubles[v.Hash].visited {
-                        que.PushBack(v.Hash)
-                        doubles[v.Hash].visited = true
+                    _, has := doubles[v.Hash]
+                    if has {
+                        if !doubles[v.Hash].visited {
+                            que.PushBack(v.Hash)
+                            effected_txs++
+                            doubles[v.Hash].visited = true
+                        }
                     }
                 }
             }
