@@ -229,14 +229,18 @@ func StartDoubleFeed(address string) {
             continue
         }
         
-        fmt.Printf("double-spending detected: %s\n", msgSplit[1])
+        fmt.Printf("double-spending detected. address: %s\n", msgSplit[1])
         // begin BFS
         effected_txs := 0
         que := list.New()
-        que.PushBack(msgSplit[1])
-        d, has := doubles[msgSplit[1]]
-        if has {
-            d.visited = true
+        for hash, tx := range transactions {
+            if tx.Address == msgSplit[1] {
+                que.PushBack(hash)
+                d, has := doubles[hash]
+                if has {
+                    d.visited = true
+                }
+            }
         }
         for que.Len() != 0 {
             cur := que.Front()
@@ -244,7 +248,6 @@ func StartDoubleFeed(address string) {
             fmt.Printf("current queue front: %s\n", cur.Value.(string))
             effected_txs++
             d, has := doubles[cur.Value.(string)]
-            fmt.Printf("if there are txs connected behind: %d\n", has)
             if has {
                 for _, v := range d.TXs {
                     if !doubles[v.Hash].visited {
