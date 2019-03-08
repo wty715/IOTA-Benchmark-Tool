@@ -240,6 +240,7 @@ func StartDoubleFeed(address string) {
                 if has {
                     d.visited = true
                 }
+                break
             }
         }
         for que.Len() != 0 {
