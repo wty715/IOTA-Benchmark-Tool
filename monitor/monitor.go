@@ -56,7 +56,7 @@ func main() {
     case <-sigs:
         fmt.Printf("total Time: %d\n", time.Now().Unix() - transactions.Start_time)
         fmt.Printf("total Transactions: %d\n", transactions.TxMsgReceived)
-        confirm_lat := [200]int
+        confirm_lat := [200]int{}
         for _, v := range transactions.Transactions {    
             confirm_lat[int32(v.Inherent_lat)]++
         }
