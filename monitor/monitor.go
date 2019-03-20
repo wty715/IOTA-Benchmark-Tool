@@ -56,6 +56,15 @@ func main() {
     case <-sigs:
         fmt.Printf("total Time: %d\n", time.Now().Unix() - transactions.Start_time)
         fmt.Printf("total Transactions: %d\n", transactions.TxMsgReceived)
+        confirm_lat := [value.Interval*3+10]int
+        for _, v := range transactions.Transactions {    
+            confirm_lat[int32(v.Inherent_lat)]++
+        }
+        fmt.Printf("Confirm latency distribution:\n-------------------------------------\n")
+        for k, v := range confirm_lat {
+            fmt.Printf("| %d\ts | %d\ttransactions |\n", k, v)
+        }
+        fmt.Printf("-------------------------------------\n")
         Shutdown(time.Duration(1500) * time.Millisecond)
     }
 }

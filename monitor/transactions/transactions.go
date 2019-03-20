@@ -47,7 +47,7 @@ type Double struct {
 }
 
 var buckets = map[string]*Bucket{}
-var transactions = map[string]*Transaction{}
+var Transactions = map[string]*Transaction{}
 var doubles = map[string]*Double{}
 
 func (b *Bucket) full() bool {
@@ -75,7 +75,7 @@ func StartTxFeed(address string) {
             continue
         }
         // store transaction & calculate inherent latency
-        _, has := transactions[tx.Hash]
+        _, has := Transactions[tx.Hash]
         if !has {
             if tx.ArrivalTime+50 > tx.Timestamp*1000 {
                 tx.Inherent_lat = tx.ArrivalTime+50 - tx.Timestamp*1000
@@ -85,14 +85,14 @@ func StartTxFeed(address string) {
             tx.Status = "Tips"
             TotalTips++
             // change tips status
-            t, has := transactions[tx.BranchTxHash]
+            t, has := Transactions[tx.BranchTxHash]
             if has {
                 if t.Status == "Tips" {
                     TotalTips--
                     t.Status = "Approved"
                 }
             }
-            t, has = transactions[tx.TrunkTxHash]
+            t, has = Transactions[tx.TrunkTxHash]
             if has {
                 if t.Status == "Tips" {
                     TotalTips--
@@ -100,7 +100,7 @@ func StartTxFeed(address string) {
                 }
             }
             // store txs and create graph
-            transactions[tx.Hash] = tx
+            Transactions[tx.Hash] = tx
             d, has := doubles[tx.BranchTxHash]
             if !has {
                 d = &Double{TXs: []*Transaction{}, visited: false}
@@ -164,7 +164,7 @@ func StartConfirmationFeed(address string) {
             continue
         }
         // calculate confirming latency
-        t, has := transactions[tx.Hash]
+        t, has := Transactions[tx.Hash]
         if has {
             if t.ArrivalTime+50 > t.Timestamp*1000 {
                 t.Confirm_lat = int64(time.Now().UnixNano()/1e6) - t.ArrivalTime
@@ -233,7 +233,7 @@ func StartDoubleFeed(address string) {
         // begin BFS
         effected_txs := 0
         que := list.New()
-        for hash, tx := range transactions {
+        for hash, tx := range Transactions {
             if tx.Address == msgSplit[1] {
                 que.PushBack(hash)
                 effected_txs++
@@ -281,9 +281,9 @@ func StartLog(interval int) {
         var totalConfirm_lat  int64 = 0
         var total = 0
         for _, v := range Interval_txs {
-            totalLatency += transactions[v].Inherent_lat + transactions[v].Confirm_lat
-            totalInherent_lat += transactions[v].Inherent_lat
-            totalConfirm_lat += transactions[v].Confirm_lat
+            totalLatency += Transactions[v].Inherent_lat + Transactions[v].Confirm_lat
+            totalInherent_lat += Transactions[v].Inherent_lat
+            totalConfirm_lat += Transactions[v].Confirm_lat
             total++
         }
 
