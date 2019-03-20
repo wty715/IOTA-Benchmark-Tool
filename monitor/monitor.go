@@ -58,7 +58,7 @@ func main() {
         fmt.Printf("total Transactions: %d\n", transactions.TxMsgReceived)
         confirm_lat := [200]int{}
         for _, v := range transactions.Transactions {    
-            confirm_lat[int32(v.Inherent_lat)]++
+            confirm_lat[int32(v.Confirm_lat/1000)]++
         }
         fmt.Printf("Confirm latency distribution:\n-------------------------------------\n")
         for k, v := range confirm_lat {
